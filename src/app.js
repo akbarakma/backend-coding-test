@@ -67,7 +67,9 @@ module.exports = (db) => {
     // eslint-disable-next-line func-names
     db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
       if (err) {
+        /* istanbul ignore next */
         winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        /* istanbul ignore next */
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
@@ -76,7 +78,9 @@ module.exports = (db) => {
 
       db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, (error, rows) => {
         if (error) {
+          /* istanbul ignore next */
           winston.error(`${error.status || 500} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+          /* istanbul ignore next */
           return res.status(500).send({
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
@@ -93,7 +97,9 @@ module.exports = (db) => {
   app.get('/rides', (req, res) => {
     db.all('SELECT * FROM Rides', (err, rows) => {
       if (err) {
+        /* istanbul ignore next */
         winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        /* istanbul ignore next */
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
@@ -116,7 +122,9 @@ module.exports = (db) => {
   app.get('/rides/:id', (req, res) => {
     db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, (err, rows) => {
       if (err) {
+        /* istanbul ignore next */
         winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        /* istanbul ignore next */
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
