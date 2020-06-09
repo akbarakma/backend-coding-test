@@ -70,21 +70,31 @@ All req.body is **required**
 ## Endpoint
 > /rides
 
+## Query String
+```
+page = integer (greater than 0)
+```
+
 ## Response:
 ```
-[
-  {
-      "rideID": 1,
-      "startLat": 15,
-      "startLong": 15,
-      "endLat": 15,
-      "endLong": 15,
-      "riderName": "test",
-      "driverName": "test driver",
-      "driverVehicle": "crv",
-      "created": "2020-06-09 11:03:27"
-  }
-]
+{
+  "rides": [
+      {
+          "rideID": 1,
+          "startLat": 15,
+          "startLong": 15,
+          "endLat": 15,
+          "endLong": 15,
+          "riderName": "test",
+          "driverName": "test driver",
+          "driverVehicle": "crv",
+          "created": "2020-06-09 19:25:54"
+      }
+  ],
+  "pages": 1,
+  "currentPage": 1,
+  "numOfResult": 1
+}
 ```
 
 # Get /rides/:id

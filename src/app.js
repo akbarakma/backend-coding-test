@@ -95,7 +95,10 @@ module.exports = (db) => {
   });
 
   app.get('/rides', (req, res) => {
-    db.all('SELECT * FROM Rides', (err, rows) => {
+    const resPerPage = 5;
+    let page = Number(req.query.page) || 1;
+    if (page === 0) page = 1;
+    db.all(`SELECT * FROM Rides LIMIT ${resPerPage} OFFSET ${(resPerPage * page) - resPerPage}`, (err, rows) => {
       if (err) {
         /* istanbul ignore next */
         winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -113,8 +116,25 @@ module.exports = (db) => {
           message: 'Could not find any rides',
         });
       }
-
-      res.send(rows);
+      db.all('SELECT COUNT(*) FROM Rides', (error, result) => {
+        if (error) {
+          /* istanbul ignore next */
+          winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+          /* istanbul ignore next */
+          return res.status(500).send({
+            error_code: 'SERVER_ERROR',
+            message: 'Unknown error',
+          });
+        }
+        const sum = result[0]['COUNT(*)'];
+        res.json({
+          rides: rows,
+          pages: Math.ceil(sum / resPerPage),
+          currentPage: page,
+          numOfResult: sum,
+        });
+        return null;
+      });
       return null;
     });
   });
