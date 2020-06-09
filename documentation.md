@@ -8,6 +8,7 @@
 - `GET /rides/:id`
 
 # Error response format:
+## Status: 4xx or 5xx
 ```json
 {
   "error_code": "error code",
