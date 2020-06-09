@@ -1,9 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const winston = require('../config/winston');
 
 const app = express();
 const jsonParser = bodyParser.json();
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('combined', { stream: winston.stream }));
 
 module.exports = (db) => {
   app.get('/health', (req, res) => res.send('Healthy'));
@@ -19,6 +22,7 @@ module.exports = (db) => {
 
     if (startLatitude < -90 || startLatitude > 90
       || startLongitude < -180 || startLongitude > 180) {
+      winston.error(`400 - 'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Start latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
@@ -26,6 +30,7 @@ module.exports = (db) => {
     }
 
     if (endLatitude < -90 || endLatitude > 90 || endLongitude < -180 || endLongitude > 180) {
+      winston.error(`400 - 'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'End latitude and longitude must be between -90 - 90 and -180 to 180 degrees respectively',
@@ -33,6 +38,7 @@ module.exports = (db) => {
     }
 
     if (typeof riderName !== 'string' || riderName.length < 1) {
+      winston.error(`400 - 'Rider name must be a non empty string'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Rider name must be a non empty string',
@@ -40,6 +46,7 @@ module.exports = (db) => {
     }
 
     if (typeof driverName !== 'string' || driverName.length < 1) {
+      winston.error(`400 - 'Rider name must be a non empty string'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Rider name must be a non empty string',
@@ -47,6 +54,7 @@ module.exports = (db) => {
     }
 
     if (typeof driverVehicle !== 'string' || driverVehicle.length < 1) {
+      winston.error(`400 - 'Rider name must be a non empty string'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
       return res.status(400).send({
         error_code: 'VALIDATION_ERROR',
         message: 'Rider name must be a non empty string',
@@ -59,6 +67,7 @@ module.exports = (db) => {
     // eslint-disable-next-line func-names
     db.run('INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)', values, function (err) {
       if (err) {
+        winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
@@ -67,6 +76,7 @@ module.exports = (db) => {
 
       db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, (error, rows) => {
         if (error) {
+          winston.error(`${error.status || 500} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
           return res.status(500).send({
             error_code: 'SERVER_ERROR',
             message: 'Unknown error',
@@ -83,6 +93,7 @@ module.exports = (db) => {
   app.get('/rides', (req, res) => {
     db.all('SELECT * FROM Rides', (err, rows) => {
       if (err) {
+        winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
@@ -90,6 +101,7 @@ module.exports = (db) => {
       }
 
       if (rows.length === 0) {
+        winston.error(`404 - 'Could not find any rides'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
         return res.status(404).send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
@@ -104,6 +116,7 @@ module.exports = (db) => {
   app.get('/rides/:id', (req, res) => {
     db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, (err, rows) => {
       if (err) {
+        winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
         return res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
@@ -111,6 +124,7 @@ module.exports = (db) => {
       }
 
       if (rows.length === 0) {
+        winston.error(`404 - 'Could not find any rides'- ${req.originalUrl} - ${req.method} - ${req.ip}`);
         return res.status(404).send({
           error_code: 'RIDES_NOT_FOUND_ERROR',
           message: 'Could not find any rides',
