@@ -140,6 +140,12 @@ describe('API tests', () => {
       request(app)
         .get('/rides')
         .expect('Content-Type', /json/)
+        .expect((res) => {
+          if (res.body.rides.length !== 1) throw new Error('Error');
+          if (res.body.pages !== 1) throw new Error('Error');
+          if (res.body.currentPage !== 1) throw new Error('Error');
+          if (res.body.numOfResult !== 1) throw new Error('Error');
+        })
         .expect(200, done);
     });
   });
