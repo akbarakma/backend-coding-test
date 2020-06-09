@@ -96,8 +96,7 @@ module.exports = (db) => {
 
   app.get('/rides', (req, res) => {
     const resPerPage = 5;
-    let page = Number(req.query.page) || 1;
-    if (page === 0) page = 1;
+    const page = Number(req.query.page) || 1;
     db.all(`SELECT * FROM Rides LIMIT ${resPerPage} OFFSET ${(resPerPage * page) - resPerPage}`, (err, rows) => {
       if (err) {
         /* istanbul ignore next */
