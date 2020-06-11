@@ -14,7 +14,7 @@ exports.insertOne = (db, data) => new Promise((resolve, reject) => {
 });
 
 exports.findAllLimits = (db, limit, offset) => new Promise((resolve, reject) => {
-  db.all(`SELECT * FROM Rides LIMIT ${limit} OFFSET ${offset}`, (err, rows) => {
+  db.all('SELECT * FROM Rides LIMIT ? OFFSET ?', limit, offset, (err, rows) => {
     if (err) reject(err);
     else resolve(rows);
   });

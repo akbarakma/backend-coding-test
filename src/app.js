@@ -21,6 +21,14 @@ module.exports = (db) => {
 
   app.post('/rides', jsonParser, async (req, res) => {
     try {
+      if (req.body.start_lat > 0 === false || req.body.start_long > 0 === false
+      || req.body.end_lat > 0 === false || req.body.end_long > 0 === false) {
+        throw {
+          status: 400,
+          message: 'Start latitude-longitude, and end latitude-longitude must be a number',
+        };
+      }
+
       const startLatitude = Number(req.body.start_lat);
       const startLongitude = Number(req.body.start_long);
       const endLatitude = Number(req.body.end_lat);
@@ -61,12 +69,11 @@ module.exports = (db) => {
         };
       }
 
-      const values = [req.body.start_lat, req.body.start_long, req.body.end_lat,
-        req.body.end_long, req.body.rider_name, req.body.driver_name, req.body.driver_vehicle];
+      const values = [startLatitude, startLongitude, endLatitude,
+        endLongitude, riderName, driverName, driverVehicle];
       const id = await insertOne(db, values);
       const result = await findOne(db, id);
       res.send(result);
-      return null;
     } catch (err) {
       if (err.status === 400) {
         winston.error(`${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -82,13 +89,18 @@ module.exports = (db) => {
         });
       }
     }
-    return null;
   });
 
   app.get('/rides', async (req, res) => {
     try {
       const resPerPage = 5;
       const page = Number(req.query.page) || 1;
+      if (page < 0) {
+        throw {
+          status: 400,
+          message: 'Page must be greater and equal to 0',
+        };
+      }
       const offset = (resPerPage * page) - resPerPage;
       const rideData = await findAllLimits(db, resPerPage, offset);
       if (rideData.length === 0) {
@@ -105,21 +117,20 @@ module.exports = (db) => {
         numOfResult,
       });
     } catch (err) {
-      if (err.status === 404) {
-        winston.error(`400 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-        res.status(404).send({
-          error_code: 'RIDES_NOT_FOUND_ERROR',
-          message: err.message,
-        });
-      } else {
-        winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-        return res.status(500).send({
+      if (err.status === 500) {
+        winston.error(`500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        res.status(500).send({
           error_code: 'SERVER_ERROR',
           message: 'Unknown error',
         });
+      } else {
+        winston.error(`${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        res.status(err.status).send({
+          error_code: 'RIDES_NOT_FOUND_ERROR',
+          message: err.message,
+        });
       }
     }
-    return null;
   });
 
   app.get('/rides/:id', async (req, res) => {

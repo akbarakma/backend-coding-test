@@ -55,6 +55,22 @@ describe('API tests', () => {
     });
     it('should return status 400 and error message', (done) => {
       const input = {
+        start_lat: 'not a number',
+        start_long: 15,
+        end_lat: 15,
+        end_long: 15,
+        rider_name: 'test',
+        driver_name: 'test driver',
+        driver_vehicle: 'crv',
+      };
+      request(app)
+        .post('/rides')
+        .send(input)
+        .expect('Content-Type', /json/)
+        .expect(400, done);
+    });
+    it('should return status 400 and error message', (done) => {
+      const input = {
         start_lat: 150,
         start_long: 15,
         end_lat: 15,
@@ -147,6 +163,12 @@ describe('API tests', () => {
           if (res.body.numOfResult !== 1) throw new Error('Error');
         })
         .expect(200, done);
+    });
+    it('should return 400 and object', (done) => {
+      request(app)
+        .get('/rides?page=-1')
+        .expect('Content-Type', /json/)
+        .expect(400, done);
     });
   });
 
