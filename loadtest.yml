@@ -2,11 +2,25 @@ config:
   target: 'http://localhost:8010'
   phases:
     - duration: 30
-      arrivalRate: 100
+      arrivalRate: 30
   defaults:
     headers:
       x-my-service-auth: '987401838271002188298567'
 scenarios:
   - flow:
     - get:
-        url: "/docs"
+        url: "/health"
+    - post:
+        url: "/rides"
+        json: 
+          start_lat: 15
+          start_long: 15
+          end_lat: 15
+          end_long: 15
+          rider_name: "test"
+          driver_name: "test driver"
+          driver_vehicle: "bmw"
+    - get:
+        url: "/rides"
+    - get:
+        url: "/rides/1"
