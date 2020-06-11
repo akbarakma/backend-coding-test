@@ -1,3 +1,6 @@
+# Repo Link
+## [https://github.com/akbarakma/backend-coding-test](https://github.com/akbarakma/backend-coding-test)
+
 # Endpoint
 ## http://localhost:8010
 
@@ -99,7 +102,7 @@ page = integer (greater than 0)
 
 # Get /rides/:id
 
-## See all the ride in database
+## See one ride in database based on id
 ## Endpoint
 > /rides/:id
 
